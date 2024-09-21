@@ -11,7 +11,15 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Layout, Card, Select, Spin, Typography } from "antd";
+import {
+  Layout,
+  Card,
+  Select,
+  Spin,
+  Typography,
+  notification,
+  message,
+} from "antd";
 
 const { Header, Content } = Layout;
 const { Option } = Select;
@@ -40,6 +48,8 @@ const Dashboard = () => {
         setCurrentData(response.data);
       } catch (error) {
         console.error("Error fetching current data:", error);
+        // Show error toast
+        message.error("Failed to fetch current weather data.");
       } finally {
         setLoading(false);
       }
@@ -57,6 +67,8 @@ const Dashboard = () => {
         setHistoricalData(response.data);
       } catch (error) {
         console.error("Error fetching historical data:", error);
+        // Show error toast
+        message.error("Failed to fetch historical data.");
       }
     };
 
@@ -65,14 +77,30 @@ const Dashboard = () => {
 
   const handleSensorChange = (value) => {
     setSelectedSensor(value);
+
+    // Show popup notification on sensor change
+    notification.info({
+      message: `Sensor Changed`,
+      description: `You have selected the sensor for ${
+        currentData.find((sensor) => sensor.sensorId === value)?.city ||
+        "Unknown City"
+      }.`,
+      placement: "bottomRight",
+    });
   };
 
   const chartData = {
-    labels: historicalData.map((data) => data.timestamp),
+    labels:
+      historicalData.length > 5
+        ? historicalData.slice(-5).map((data) => data.timestamp)
+        : historicalData.map((data) => data.timestamp),
     datasets: [
       {
         label: "Temperature (°C)",
-        data: historicalData.map((data) => data.temp),
+        data:
+          historicalData.length > 5
+            ? historicalData.slice(-5).map((data) => data.temp)
+            : historicalData.map((data) => data.temp),
         fill: false,
         backgroundColor: "rgba(75,192,192,0.4)",
         borderColor: "rgba(75,192,192,1)",
