@@ -121,7 +121,9 @@ const Dashboard = () => {
         ) : (
           <div>
             <AntTitle level={3}>Current Weather</AntTitle>
-            <div style={{ display: "flex", gap: "20px" }}>
+            <div
+              style={{ display: "flex", gap: "20px", justifyContent: "center" }}
+            >
               {currentData.map((sensor) => (
                 <Card
                   key={sensor.sensorId}
