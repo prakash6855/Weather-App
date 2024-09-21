@@ -1,4 +1,3 @@
-// src/Dashboard.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Line } from "react-chartjs-2";
@@ -12,6 +11,12 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { Layout, Card, Select, Spin, Typography } from "antd";
+
+const { Header, Content } = Layout;
+const { Option } = Select;
+const { Title: AntTitle, Text } = Typography;
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -25,7 +30,7 @@ ChartJS.register(
 const Dashboard = () => {
   const [currentData, setCurrentData] = useState([]);
   const [historicalData, setHistoricalData] = useState([]);
-  const [selectedSensor, setSelectedSensor] = useState(1); // Default to the first sensor
+  const [selectedSensor, setSelectedSensor] = useState(1);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,8 +63,8 @@ const Dashboard = () => {
     fetchHistoricalData();
   }, [selectedSensor]);
 
-  const handleSensorChange = (event) => {
-    setSelectedSensor(parseInt(event.target.value));
+  const handleSensorChange = (value) => {
+    setSelectedSensor(value);
   };
 
   const chartData = {
@@ -76,37 +81,55 @@ const Dashboard = () => {
   };
 
   return (
-    <div>
-      <h1>Weather Dashboard</h1>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div>
-          <h2>Current Weather</h2>
-          {currentData.map((sensor) => (
-            <div key={sensor.sensorId}>
-              <h3>{sensor.city}</h3>
-              <p>Temperature: {sensor.current.temp} °C</p>
-              <p>Humidity: {sensor.current.humidity} %</p>
-              <p>Pressure: {sensor.current.pressure} hPa</p>
-              <p>Wind Speed: {sensor.current.wind_kph} kph</p>
-            </div>
-          ))}
-          <h2>Historical Data</h2>
-          <label>
-            Select Sensor:
-            <select value={selectedSensor} onChange={handleSensorChange}>
+    <Layout style={{ minHeight: "100vh" }}>
+      <Header style={{ background: "#fff", padding: 0 }}>
+        <AntTitle level={2} style={{ textAlign: "center" }}>
+          Weather Dashboard
+        </AntTitle>
+      </Header>
+      <Content style={{ padding: "20px" }}>
+        {loading ? (
+          <Spin size="large" />
+        ) : (
+          <div>
+            <AntTitle level={3}>Current Weather</AntTitle>
+            <div style={{ display: "flex", gap: "20px" }}>
               {currentData.map((sensor) => (
-                <option key={sensor.sensorId} value={sensor.sensorId}>
-                  {sensor.city}
-                </option>
+                <Card
+                  key={sensor.sensorId}
+                  title={sensor.city}
+                  style={{ width: 300 }}
+                >
+                  <Text>Temperature: {sensor.current.temp} °C</Text>
+                  <br />
+                  <Text>Humidity: {sensor.current.humidity} %</Text>
+                  <br />
+                  <Text>Pressure: {sensor.current.pressure} hPa</Text>
+                  <br />
+                  <Text>Wind Speed: {sensor.current.wind_kph} kph</Text>
+                </Card>
               ))}
-            </select>
-          </label>
-          <Line data={chartData} />
-        </div>
-      )}
-    </div>
+            </div>
+            <AntTitle level={3}>Historical Data</AntTitle>
+            <label>
+              Select Sensor:
+              <Select
+                defaultValue={selectedSensor}
+                style={{ width: 200, marginLeft: 10 }}
+                onChange={handleSensorChange}
+              >
+                {currentData.map((sensor) => (
+                  <Option key={sensor.sensorId} value={sensor.sensorId}>
+                    {sensor.city}
+                  </Option>
+                ))}
+              </Select>
+            </label>
+            <Line data={chartData} />
+          </div>
+        )}
+      </Content>
+    </Layout>
   );
 };
 
