@@ -73,7 +73,7 @@ const generateRealWeatherData = async () => {
 // Set interval to update weather data every 5 minutes
 setInterval(() => {
   generateRealWeatherData();
-}, 10000); // Update every 10 seconds
+}, 1000); // Update every 1 second
 
 // Express routes to handle API requests
 const getCurrentWeather = (req, res) => {

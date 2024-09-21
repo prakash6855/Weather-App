@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import {
+  Layout,
+  Card,
+  Select,
+  Spin,
+  Typography,
+  notification,
+  message,
+} from "antd";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -11,15 +20,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import {
-  Layout,
-  Card,
-  Select,
-  Spin,
-  Typography,
-  notification,
-  message,
-} from "antd";
 
 const { Header, Content } = Layout;
 const { Option } = Select;
@@ -48,7 +48,6 @@ const Dashboard = () => {
         setCurrentData(response.data);
       } catch (error) {
         console.error("Error fetching current data:", error);
-        // Show error toast
         message.error("Failed to fetch current weather data.");
       } finally {
         setLoading(false);
@@ -67,7 +66,6 @@ const Dashboard = () => {
         setHistoricalData(response.data);
       } catch (error) {
         console.error("Error fetching historical data:", error);
-        // Show error toast
         message.error("Failed to fetch historical data.");
       }
     };
@@ -77,8 +75,6 @@ const Dashboard = () => {
 
   const handleSensorChange = (value) => {
     setSelectedSensor(value);
-
-    // Show popup notification on sensor change
     notification.info({
       message: `Sensor Changed`,
       description: `You have selected the sensor for ${
@@ -89,24 +85,24 @@ const Dashboard = () => {
     });
   };
 
-  const chartData = {
+  const chartData = (label, dataKey, color) => ({
     labels:
       historicalData.length > 5
         ? historicalData.slice(-5).map((data) => data.timestamp)
         : historicalData.map((data) => data.timestamp),
     datasets: [
       {
-        label: "Temperature (°C)",
+        label,
         data:
           historicalData.length > 5
-            ? historicalData.slice(-5).map((data) => data.temp)
-            : historicalData.map((data) => data.temp),
+            ? historicalData.slice(-5).map((data) => data[dataKey])
+            : historicalData.map((data) => data[dataKey]),
         fill: false,
-        backgroundColor: "rgba(75,192,192,0.4)",
-        borderColor: "rgba(75,192,192,1)",
+        backgroundColor: color,
+        borderColor: color,
       },
     ],
-  };
+  });
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -155,7 +151,36 @@ const Dashboard = () => {
                 ))}
               </Select>
             </label>
-            <Line data={chartData} />
+            <div>
+              <Line
+                data={chartData(
+                  "Temperature (°C)",
+                  "temp",
+                  "rgba(255, 99, 132, 1)"
+                )}
+              />
+              <Line
+                data={chartData(
+                  "Humidity (%)",
+                  "humidity",
+                  "rgba(54, 162, 235, 1)"
+                )}
+              />
+              <Line
+                data={chartData(
+                  "Pressure (hPa)",
+                  "pressure",
+                  "rgba(75, 192, 192, 1)"
+                )}
+              />
+              <Line
+                data={chartData(
+                  "Wind Speed (kph)",
+                  "wind_kph",
+                  "rgba(255, 206, 86, 1)"
+                )}
+              />
+            </div>
           </div>
         )}
       </Content>
